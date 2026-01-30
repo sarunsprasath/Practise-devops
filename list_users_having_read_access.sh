@@ -16,8 +16,15 @@ function github_api_get {
          local endpoint="$1"
          local url="${API_URL}/${endpoint}"
 
-        # Send a GET request to the GitHub API with authentication
-        curl -s -u "${USERNAME}:${TOKEN}" "$url"
+# Send a GET request to the GitHub API with authentication
+curl -s \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  "$url"
+
+
+# This works better with fine‑grained tokens and avoids exposing your username
 }
 
 # Function to list users with read access to the repository
@@ -28,7 +35,7 @@ function list_users_with_read_access {
       collaborators="$(github_api_get "$endpoint" | jq -r '.[] | select(.permissions.pull == true) | .login')"
 
       # Display the list of collaborators with read access 
-      if [[ -z "$collaboratos" ]]; then
+      if [[ -z "$collaborators" ]]; then
             echo "No users with read access found for ${REPO_OWNER}/${REPO_NAME}."
       else
             echo "Users with read access to ${REPO_OWNER}/${REPO_NAME}." 
